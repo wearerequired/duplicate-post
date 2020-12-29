@@ -36,13 +36,13 @@ class DuplicatePost {
 		 *
 		 * @returns {void}
 		 */
-		subscribe(() => {
-			const completed = this.redirectOnSaveCompletion( duplicatePost.originalEditURL, { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
+		subscribe( () => {
+			const completed = this.redirectOnSaveCompletion( { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
 
 			wasSavingPost      = completed.isSavingPost;
 			wasSavingMetaboxes = completed.isSavingMetaBoxes;
 			wasAutoSavingPost = completed.isAutosavingPost;
-		});
+		} );
 	}
 
 	/**
@@ -58,14 +58,13 @@ class DuplicatePost {
 		const hasActiveMetaBoxes = select('core/edit-post').hasMetaBoxes();
 		const isSavingMetaBoxes  = select('core/edit-post').isSavingMetaBoxes();
 
-
 		// When there are custom meta boxes, redirect after they're saved.
 		if ( hasActiveMetaBoxes && ! isSavingMetaBoxes && editorState.wasSavingMetaboxes ) {
 			setTimeout( this.doRedirect, 100 );
 		}
 
 		// When there are no custom meta boxes, redirect after the post is saved.
-		if ( ! hasActiveMetaBoxes && ! isSavingPost && editorState.wasSavingPost && !editorState.wasAutoSavingPost ) {
+		if ( ! hasActiveMetaBoxes && ! isSavingPost && editorState.wasSavingPost && ! editorState.wasAutoSavingPost ) {
 			setTimeout( this.doRedirect, 100 );
 		}
 
