@@ -48,12 +48,11 @@ class DuplicatePost {
 	/**
 	 * Redirects to url when saving in the block editor has completed.
 	 *
-	 * @param {string} url         The url to redirect to.
 	 * @param {Object} editorState The current editor state regarding saving the post, metaboxes and autosaving.
 	 *
 	 * @returns {Object} The updated editor state.
 	 */
-	redirectOnSaveCompletion = (editorState) => {
+	redirectOnSaveCompletion( editorState ) {
 		const isSavingPost       = select('core/editor').isSavingPost();
 		const isAutosavingPost   = select('core/editor').isAutosavingPost();
 		const hasActiveMetaBoxes = select('core/edit-post').hasMetaBoxes();
