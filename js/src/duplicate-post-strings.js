@@ -9,22 +9,7 @@ import { redirectOnSaveCompletion } from "./duplicate-post-functions";
 const saveAndCompare = () => {
 	dispatch( 'core/editor' ).savePost();
 
-	let wasSavingPost      = false;
-	let wasSavingMetaboxes = false;
-	let wasAutoSavingPost  = false;
-
-	/**
-	 * Determines when the redirect needs to happen.
-	 *
-	 * @returns {void}
-	 */
-	subscribe( () => {
-		const completed = redirectOnSaveCompletion( duplicatePostStrings.checkLink, { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
-
-		wasSavingPost      = completed.isSavingPost;
-		wasSavingMetaboxes = completed.isSavingMetaBoxes;
-		wasAutoSavingPost  = completed.isAutosavingPost;
-	} );
+	duplicatePost.instance.shouldRedirectToCheckLink = true;
 }
 
 const republishStrings = {

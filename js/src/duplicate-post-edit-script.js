@@ -11,8 +11,11 @@ import { redirectOnSaveCompletion } from "./duplicate-post-functions";
 
 class DuplicatePost {
 	constructor() {
+		this.doRedirect = this.doRedirect.bind( this );
+
 		this.renderNotices();
 		this.removeSlugSidebarPanel();
+		this.shouldRedirectToCheckLink = false;
 	}
 
 	/**
@@ -34,40 +37,51 @@ class DuplicatePost {
 		 *
 		 * @returns {void}
 		 */
-		subscribe( () => {
-			if ( ! this.isSafeRedirectURL( duplicatePost.originalEditURL ) || ! this.isCopyAllowedToBeRepublished() ) {
-				return;
-			}
-
+		subscribe(() => {
 			const completed = redirectOnSaveCompletion( duplicatePost.originalEditURL, { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
 
 			wasSavingPost      = completed.isSavingPost;
 			wasSavingMetaboxes = completed.isSavingMetaBoxes;
-			wasAutoSavingPost  = completed.isAutosavingPost;
-		} );
+			wasAutoSavingPost = completed.isAutosavingPost;
+		});
 	}
 
 	/**
-	 * Checks whether the URL for the redirect from the copy to the original matches the expected format.
+	 * Redirects to url when saving in the block editor has completed.
 	 *
-	 * Allows only URLs with a http(s) protocol, a pathname matching the admin
-	 * post.php page and a parameter string with the expected parameters.
+	 * @param {string} url         The url to redirect to.
+	 * @param {Object} editorState The current editor state regarding saving the post, metaboxes and autosaving.
 	 *
-	 * @returns {bool} Whether the redirect URL matches the expected format.
+	 * @returns {Object} The updated editor state.
 	 */
-	isSafeRedirectURL( url ) {
-		const parser = document.createElement( 'a' );
-		parser.href  = url;
+	redirectOnSaveCompletion = (editorState) => {
+		const isSavingPost       = select('core/editor').isSavingPost();
+		const isAutosavingPost   = select('core/editor').isAutosavingPost();
+		const hasActiveMetaBoxes = select('core/edit-post').hasMetaBoxes();
+		const isSavingMetaBoxes  = select('core/edit-post').isSavingMetaBoxes();
 
-		if (
-			/^https?:$/.test( parser.protocol ) &&
-			/\/wp-admin\/post\.php$/.test( parser.pathname ) &&
-			/\?action=edit&post=[0-9]+&dprepublished=1&dpcopy=[0-9]+&dpnonce=[a-z0-9]+/i.test( parser.search )
-		) {
-			return true;
+
+		// When there are custom meta boxes, redirect after they're saved.
+		if ( hasActiveMetaBoxes && ! isSavingMetaBoxes && editorState.wasSavingMetaboxes ) {
+			setTimeout( this.doRedirect, 100 );
 		}
 
-		return false;
+		// When there are no custom meta boxes, redirect after the post is saved.
+		if ( ! hasActiveMetaBoxes && ! isSavingPost && editorState.wasSavingPost && !editorState.wasAutoSavingPost ) {
+			setTimeout( this.doRedirect, 100 );
+		}
+
+		return { isSavingPost, isSavingMetaBoxes, isAutosavingPost };
+	};
+
+	/**
+	 * Redirects the pages to either the check link or the original edit URL.
+	 */
+	doRedirect() {
+		const url = this.shouldRedirectToCheckLink ? duplicatePost.checkLink : duplicatePost.originalEditUrl;
+		if ( this.isCopyAllowedToBeRepublished() || this.shouldRedirectToCheckLink ) {
+			window.location.assign( url );
+		}
 	}
 
 	/**
