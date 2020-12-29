@@ -3,8 +3,7 @@
 import { createInterpolateElement } from "@wordpress/element";
 import { Button } from "@wordpress/components";
 import { __, setLocaleData } from "@wordpress/i18n";
-import { dispatch, subscribe } from "@wordpress/data";
-import { redirectOnSaveCompletion } from "./duplicate-post-functions";
+import { dispatch } from "@wordpress/data";
 
 const saveAndCompare = () => {
 	dispatch( 'core/editor' ).savePost();

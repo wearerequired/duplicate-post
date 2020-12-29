@@ -6,7 +6,6 @@ import { Fragment } from "@wordpress/element";
 import { Button } from '@wordpress/components';
 import { __ } from "@wordpress/i18n";
 import { select, subscribe, dispatch } from "@wordpress/data";
-import { redirectOnSaveCompletion } from "./duplicate-post-functions";
 
 
 class DuplicatePost {
@@ -38,7 +37,7 @@ class DuplicatePost {
 		 * @returns {void}
 		 */
 		subscribe(() => {
-			const completed = redirectOnSaveCompletion( duplicatePost.originalEditURL, { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
+			const completed = this.redirectOnSaveCompletion( duplicatePost.originalEditURL, { wasSavingPost, wasSavingMetaboxes, wasAutoSavingPost } );
 
 			wasSavingPost      = completed.isSavingPost;
 			wasSavingMetaboxes = completed.isSavingMetaBoxes;
