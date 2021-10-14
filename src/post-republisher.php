@@ -343,7 +343,7 @@ class Post_Republisher {
 		$original_post_id = Utils::get_original_post_id( $post->ID );
 
 		$copy_taxonomies_options = [
-			'taxonomies_excludelist' => [],
+			'taxonomies_excludelist' => [ 'post_translations' ],
 			'use_filters'            => false,
 			'copy_format'            => true,
 		];
